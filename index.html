@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Apple Queue — send anything from your browser to Apple Notes, Reminders, and Calendar</title>
+<meta name="description" content="Apple Queue is a browser extension plus your own private backend. Capture notes, reminders, and events from any page; an iOS Shortcut drops them straight into Apple's apps.">
+<meta property="og:title" content="Apple Queue">
+<meta property="og:description" content="Capture to Apple Notes, Reminders, and Calendar from your browser — through a backend you own.">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://applequeue.erinskidds.com/">
+<link rel="stylesheet" href="/assets/site.css">
+<script>
+  (function () {
+    try {
+      var t = localStorage.getItem('aq-theme');
+      if (t) document.documentElement.setAttribute('data-theme', t);
+      else if (window.matchMedia('(prefers-color-scheme: light)').matches)
+        document.documentElement.setAttribute('data-theme', 'light');
+    } catch (e) {}
+  })();
+</script>
+</head>
+<body>
+
+<header class="topbar">
+  <a class="brand" href="/"><span class="mark">Q</span> Apple Queue</a>
+  <nav>
+    <a href="/" aria-current="page">Overview</a>
+    <a href="/setup/">Set up</a>
+    <a href="/docs/">Docs</a>
+    <a href="https://github.com/DudeThatsErin/AppleQueue">GitHub</a>
+    <button class="theme-toggle" type="button" aria-label="Toggle theme">☀</button>
+  </nav>
+</header>
+
+<div class="wrap">
+
+  <section class="hero">
+    <span class="eyebrow">Browser extension + your own backend</span>
+    <h1>Capture to Apple Notes,<br>Reminders, and Calendar</h1>
+    <p class="sub">
+      Grab a selection, a page, or a quick thought from your browser. Apple Queue holds it
+      until an iOS Shortcut on your iPhone or Mac files it into the real Apple app — no
+      third-party account, no shared server, no one else's database.
+    </p>
+    <div class="cta">
+      <a class="btn primary" href="/setup/">Create your Apple Queue →</a>
+      <a class="btn ghost" href="#how">How it works</a>
+    </div>
+    <p style="margin-top:18px;color:var(--muted);font-size:14px">
+      Free and open source · You deploy your own backend · Your data never touches our servers
+    </p>
+  </section>
+
+  <section class="block" id="how">
+    <h2>How it works</h2>
+    <p class="lede">
+      Apple has no public write API for Notes, Reminders, or Calendar on the web. Apple Queue
+      works around that with a queue and a Shortcut: the browser writes, and your Apple device reads.
+    </p>
+
+<pre><code>Browser extension          Your backend                 Your iPhone / Mac
+─────────────────          ────────────────             ─────────────────
+Capture a note      ──▶    Queued (pending)      ──▶    Shortcut fetches pending
+                                                        Creates the real Apple item
+                           Removed from queue    ◀──    Shortcut acknowledges it</code></pre>
+
+    <div class="grid cols-3" style="margin-top:22px">
+      <div class="card">
+        <span class="icon">🧩</span>
+        <h3>One extension</h3>
+        <p>Install once from your browser's add-on store, then point it at your own backend URL and API key.</p>
+      </div>
+      <div class="card">
+        <span class="icon">☁️</span>
+        <h3>Your own backend</h3>
+        <p>Deploy the open-source backend template to your Vercel account in a couple of minutes. It's yours.</p>
+      </div>
+      <div class="card">
+        <span class="icon">📱</span>
+        <h3>Your Shortcut</h3>
+        <p>A personal automation runs on a schedule, drains the queue, and creates real Apple items.</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="block">
+    <h2>What you can capture</h2>
+    <p class="lede">Enable only the modules you want. The extension hides the rest.</p>
+    <div class="grid cols-3">
+      <div class="card">
+        <h3>📝 Apple Notes</h3>
+        <p>Rich text captured as Markdown, a target folder, and image or PDF attachments that ride along into the note.</p>
+      </div>
+      <div class="card">
+        <h3>✅ Reminders</h3>
+        <p>Title, notes, list, URL, due date, and priority — straight into the Reminders list you choose.</p>
+      </div>
+      <div class="card">
+        <h3>📅 Calendar</h3>
+        <p>Start and end, all-day events, location, invitees, and alerts. Invitees also queue a nudge reminder.</p>
+      </div>
+    </div>
+    <div class="grid cols-2" style="margin-top:16px">
+      <div class="card">
+        <h3>✨ Natural-language parsing <span class="pill">optional</span></h3>
+        <p>Type “lunch with Sam next Thursday at 1” and let a model sort out the title, type, and date. Runs through
+          your backend against any OpenAI-compatible endpoint — including a local Ollama.</p>
+      </div>
+      <div class="card">
+        <h3>📍 Address autocomplete <span class="pill">optional</span></h3>
+        <p>Google Places suggestions for event locations, proxied by your backend so the API key never ships
+          inside the extension.</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="block">
+    <h2>Why you deploy it yourself</h2>
+    <p class="lede">
+      Apple Queue is deliberately not a hosted service. There is no account to create and no
+      shared multi-tenant backend to trust.
+    </p>
+    <div class="grid cols-2">
+      <div class="card">
+        <h3>Your data stays yours</h3>
+        <p>Queued items, attachments, and API keys live in your deployment and its storage — not in a
+          database shared with strangers.</p>
+      </div>
+      <div class="card">
+        <h3>Your keys, your usage</h3>
+        <p>If you turn on AI parsing or Places autocomplete, you bring the key and you see the bill.
+          Nobody can spend your quota, and you can't spend anyone else's.</p>
+      </div>
+      <div class="card">
+        <h3>Secrets stay server-side</h3>
+        <p>The extension only ever knows your backend URL and one per-install token. Provider secrets
+          never leave your environment variables.</p>
+      </div>
+      <div class="card">
+        <h3>Nothing to shut down</h3>
+        <p>The project can go quiet and your install keeps working. It's your repository and your
+          hosting account.</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="block">
+    <h2>Get going</h2>
+    <ol class="steps">
+      <li>
+        <h3>Configure and deploy your backend</h3>
+        <p>The setup wizard asks which modules you want and what your defaults should be, generates a
+          strong API key in your browser, and hands you a Vercel deploy link plus the exact environment
+          variables to paste in.</p>
+        <p><a class="btn small primary" href="/setup/">Open the setup wizard</a></p>
+      </li>
+      <li>
+        <h3>Install the extension</h3>
+        <p>Chrome and Firefox builds come from the same public source. Enter your backend URL and API key
+          on first run and hit <strong>Test connection</strong>.</p>
+      </li>
+      <li>
+        <h3>Build the Shortcut</h3>
+        <p>The wizard prints Shortcut instructions for only the modules you enabled, then a personal
+          automation to run them on a schedule.</p>
+      </li>
+    </ol>
+  </section>
+
+  <section class="block">
+    <h2>Two ways to run it</h2>
+    <div class="grid cols-2">
+      <div class="card">
+        <h3>Hosted on Vercel <span class="pill ok">recommended</span></h3>
+        <p>Your backend runs in your Vercel account. Your computer does not need to stay on — captures
+          work from any device, any time.</p>
+      </div>
+      <div class="card">
+        <h3>Self-hosted</h3>
+        <p>Run the same backend on your own server or home machine. That system has to stay reachable,
+          or the queue can't be written to or drained.</p>
+      </div>
+    </div>
+    <div class="note warn">
+      <p><strong>About “free.”</strong> Apple Queue can usually be deployed using free-tier services for
+      light personal use. Provider limits and terms may change, and you are responsible for usage on
+      accounts you connect.</p>
+    </div>
+  </section>
+
+  <section class="block">
+    <h2>Common questions</h2>
+    <div class="grid cols-2">
+      <div class="card">
+        <h3>Does this need a Mac?</h3>
+        <p>No. The Shortcut runs on iPhone, iPad, or Mac — anywhere the Shortcuts app can create Notes,
+          Reminders, or Calendar items.</p>
+      </div>
+      <div class="card">
+        <h3>How fast does a capture arrive?</h3>
+        <p>As fast as your automation runs it. A scheduled personal automation is the hands-off option;
+          you can also run the Shortcut manually for an instant flush.</p>
+      </div>
+      <div class="card">
+        <h3>Do I need to keep the project files around?</h3>
+        <p>Not with the hosted option. Once deployed, the extension talks to your backend URL — nothing
+          runs on your computer.</p>
+      </div>
+      <div class="card">
+        <h3>Can I turn the AI off entirely?</h3>
+        <p>Yes. Leave it disabled in the wizard and the endpoints stay off and the UI hides them. It's
+          off unless you deliberately enable it.</p>
+      </div>
+    </div>
+  </section>
+
+</div>
+
+<footer class="site">
+  <div class="wrap">
+    <span>Apple Queue — free and open source.</span>
+    <nav>
+      <a href="/setup/">Set up</a>
+      <a href="/docs/">Docs</a>
+      <a href="/plan/">Release plan</a>
+      <a href="https://github.com/DudeThatsErin/AppleQueue">Source</a>
+    </nav>
+  </div>
+</footer>
+
+<script src="/assets/site.js"></script>
+</body>
+</html>
