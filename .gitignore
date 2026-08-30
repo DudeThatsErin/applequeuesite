@@ -1,0 +1,10 @@
+node_modules/
+dist/
+
+# The backend template is its own repository (DudeThatsErin/AppleQueue-Backend).
+/backend/
+
+.env
+.env.local
+.DS_Store
+*.log
