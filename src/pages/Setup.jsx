@@ -18,6 +18,7 @@ import {
   STEPS,
   deployUrl,
   envLines,
+  envPairs,
   genKey,
   load,
   normalizeUrl,
@@ -67,6 +68,7 @@ export default function Setup() {
     if (nav && nav.getBoundingClientRect().top < 0) nav.scrollIntoView({ block: 'start' });
   }
 
+  const pairs = useMemo(() => envPairs(state), [state]);
   const secrets = useMemo(() => pendingSecrets(state), [state]);
   const env = useMemo(() => envLines(state), [state]);
   const enabledModules = ['notes', 'reminders', 'calendar'].filter((k) => state[k]);
@@ -273,17 +275,62 @@ export default function Setup() {
 
             <h3>Environment variables</h3>
             <p className="hint" style={{ marginTop: 0 }}>
-              On Vercel's deploy screen you can paste this whole block into the first environment-variable
-              field and it will split into individual entries.
+              Vercel's deploy screen gives you one field per variable, already named, and fills nothing in.
+              Copy each value across. It does not split a pasted block, whatever it looks like it might do.
             </p>
-            <Copyable text={env} />
+
+            <div className="table-wrap">
+              <table>
+                <thead>
+                  <tr><th>Name</th><th>Value</th><th /></tr>
+                </thead>
+                <tbody>
+                  {pairs.map(({ name, value, supply }) => (
+                    <tr key={name}>
+                      <td><code>{name}</code></td>
+                      <td>
+                        {supply
+                          ? <em style={{ color: 'var(--warn)' }}>paste {supply}</em>
+                          : <code>{value}</code>}
+                      </td>
+                      <td style={{ textAlign: 'right' }}>
+                        {!supply && (
+                          <CopyButton
+                            text={value}
+                            className="btn small copy-btn"
+                            style={{ opacity: 1, position: 'static' }}
+                          />
+                        )}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
 
             {secrets.length > 0 && (
               <div className="note warn">
-                <p><strong>You still need to fill in:</strong></p>
+                <p>
+                  <strong>
+                    {secrets.length === 1
+                      ? 'One of these is yours to supply,'
+                      : `${secrets.length} of these are yours to supply,`}
+                  </strong>{' '}
+                  and the wizard deliberately never sees {secrets.length === 1 ? 'it' : 'them'}:
+                </p>
                 <p className="mono-out">{secrets.join('   ')}</p>
               </div>
             )}
+
+            <details style={{ marginTop: 16 }}>
+              <summary>Or take the whole thing as a <code>.env</code> file</summary>
+              <p className="hint">
+                Use this when you're self-hosting, or after the project exists: Vercel's{' '}
+                <strong>Settings → Environment Variables</strong> screen has an import that does accept a
+                pasted block. The deploy screen does not.
+              </p>
+              <Copyable text={env} />
+            </details>
 
             <hr />
 

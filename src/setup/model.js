@@ -71,66 +71,61 @@ export function save(state, step) {
 
 // ---------- generated output ------------------------------------------------
 
-export function envLines(s) {
-  const lines = [
-    `APPLE_QUEUE_API_KEY=${s.apiKey || '<generate one above>'}`,
-    '',
-    `ENABLE_NOTES=${s.notes}`,
-    `ENABLE_REMINDERS=${s.reminders}`,
-    `ENABLE_CALENDAR=${s.calendar}`,
+/* The configuration as name/value pairs. Vercel's clone screen prompts for one
+   variable at a time, so the wizard has to be able to hand over each value on
+   its own; the .env block is derived from the same list. A pair marked `supply`
+   is one the wizard can't know: you paste it in yourself. */
+export function envPairs(s) {
+  const pairs = [
+    { name: 'APPLE_QUEUE_API_KEY', value: s.apiKey },
+    { name: 'ENABLE_NOTES', value: String(s.notes) },
+    { name: 'ENABLE_REMINDERS', value: String(s.reminders) },
+    { name: 'ENABLE_CALENDAR', value: String(s.calendar) },
   ];
 
-  const defaults = [];
-  if (s.notes) defaults.push(`DEFAULT_NOTES_FOLDER=${s.defNotes}`);
-  if (s.reminders) defaults.push(`DEFAULT_REMINDER_LIST=${s.defList}`);
+  if (s.notes) pairs.push({ name: 'DEFAULT_NOTES_FOLDER', value: s.defNotes });
+  if (s.reminders) pairs.push({ name: 'DEFAULT_REMINDER_LIST', value: s.defList });
   if (s.calendar) {
-    defaults.push(`DEFAULT_CALENDAR=${s.defCal}`);
-    defaults.push(`CALENDAR_INVITE_REMINDER_LIST=${s.inviteList}`);
+    pairs.push({ name: 'DEFAULT_CALENDAR', value: s.defCal });
+    pairs.push({ name: 'CALENDAR_INVITE_REMINDER_LIST', value: s.inviteList });
   }
-  if (defaults.length) lines.push('', defaults.join('\n'));
 
-  lines.push('', `AI_ENABLED=${s.ai}`);
+  pairs.push({ name: 'AI_ENABLED', value: String(s.ai) });
   if (s.ai) {
-    lines.push(
-      `AI_BASE_URL=${s.aiBase}`,
-      `AI_MODEL=${s.aiModel}`,
-      'AI_API_KEY=<your provider key>'
-    );
+    pairs.push({ name: 'AI_BASE_URL', value: s.aiBase });
+    pairs.push({ name: 'AI_MODEL', value: s.aiModel });
+    pairs.push({ name: 'AI_API_KEY', value: '', supply: 'your AI provider key' });
   }
 
-  lines.push('', `PLACES_ENABLED=${s.places}`);
-  if (s.places) lines.push('GOOGLE_PLACES_API_KEY=<your Google Places key>');
+  pairs.push({ name: 'PLACES_ENABLED', value: String(s.places) });
+  if (s.places) {
+    pairs.push({ name: 'GOOGLE_PLACES_API_KEY', value: '', supply: 'your Google Places key' });
+  }
 
-  return lines.join('\n').replace(/\n{3,}/g, '\n\n');
+  return pairs;
+}
+
+/* A .env file, for self-hosting and for Vercel's Settings screen (which, unlike
+   the deploy screen, does split a pasted block). One pair per line, no blank
+   lines, so it survives being pasted anywhere. */
+export function envLines(s) {
+  return envPairs(s)
+    .map(({ name, value, supply }) => `${name}=${supply ? `<${supply}>` : value}`)
+    .join('\n');
 }
 
 export function pendingSecrets(s) {
-  const out = [];
-  if (s.ai) out.push('AI_API_KEY');
-  if (s.places) out.push('GOOGLE_PLACES_API_KEY');
-  return out;
-}
-
-function envNames(s) {
-  const names = ['APPLE_QUEUE_API_KEY', 'ENABLE_NOTES', 'ENABLE_REMINDERS', 'ENABLE_CALENDAR'];
-  if (s.notes) names.push('DEFAULT_NOTES_FOLDER');
-  if (s.reminders) names.push('DEFAULT_REMINDER_LIST');
-  if (s.calendar) names.push('DEFAULT_CALENDAR', 'CALENDAR_INVITE_REMINDER_LIST');
-  names.push('AI_ENABLED');
-  if (s.ai) names.push('AI_BASE_URL', 'AI_MODEL', 'AI_API_KEY');
-  names.push('PLACES_ENABLED');
-  if (s.places) names.push('GOOGLE_PLACES_API_KEY');
-  return names;
+  return envPairs(s).filter((p) => p.supply).map((p) => p.name);
 }
 
 // Vercel's clone URL can say which variables to prompt for, but not prefill
-// their values. Hence the copy-paste block on step 4.
+// their values, so step 4 hands over each value with its own copy button.
 export function deployUrl(s) {
   const q = [
     `repository-url=${encodeURIComponent(TEMPLATE_REPO)}`,
     'project-name=apple-queue',
     'repository-name=apple-queue',
-    `env=${encodeURIComponent(envNames(s).join(','))}`,
+    `env=${encodeURIComponent(envPairs(s).map((p) => p.name).join(','))}`,
     `envDescription=${encodeURIComponent('Paste the block from the Apple Queue setup wizard')}`,
     `envLink=${encodeURIComponent('https://applequeue.erinskidds.com/docs#environment')}`,
   ];
