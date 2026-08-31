@@ -9,6 +9,7 @@ export default function Footer() {
         <nav>
           <Link to="/">Overview</Link>
           <Link to="/setup">Set up</Link>
+          <Link to="/shortcuts">Shortcuts</Link>
           <Link to="/docs">Docs</Link>
           <a href={EXTENSION_REPO} target="_blank" rel="noopener">Source</a>
         </nav>

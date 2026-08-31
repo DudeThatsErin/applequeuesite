@@ -44,8 +44,8 @@ export default function Home() {
         <div className="grid cols-3" style={{ marginTop: 22 }}>
           <div className="card">
             <span className="icon">🧩</span>
-            <h3>One extension</h3>
-            <p>Install once from your browser's add-on store, then point it at your own backend URL and API key.</p>
+            <h3>Your extension</h3>
+            <p>The wizard builds a private v1.8.0 ZIP with your backend, key, modules, and defaults already configured.</p>
           </div>
           <div className="card">
             <span className="icon">☁️</span>
@@ -66,11 +66,11 @@ export default function Home() {
         <div className="grid cols-3">
           <div className="card">
             <h3>📝 Apple Notes</h3>
-            <p>Rich text captured as Markdown, a target folder, and image or PDF attachments that ride along into the note.</p>
+            <p>Rich text captured as Markdown, a target folder, and arbitrary file attachments that ride along into the note.</p>
           </div>
           <div className="card">
             <h3>✅ Reminders</h3>
-            <p>Title, notes, list, URL, due date, and priority, straight into the Reminders list you choose.</p>
+            <p>Title, notes, list, URL, due date, priority, and image attachments, straight into the list you choose.</p>
           </div>
           <div className="card">
             <h3>📅 Calendar</h3>
@@ -81,8 +81,8 @@ export default function Home() {
           <div className="card">
             <h3>✨ Natural-language parsing <span className="pill">optional</span></h3>
             <p>
-              Type “lunch with Sam next Thursday at 1” and let a model sort out the title, type, and date. Runs through
-              your backend against any OpenAI-compatible endpoint, including a local Ollama.
+              Type “lunch with Sam next Thursday at 1” and let a model fill the draft. Choose OpenAI, Anthropic,
+              Gemini, or Ollama in the extension, then review everything before adding it.
             </p>
           </div>
           <div className="card">
@@ -113,9 +113,9 @@ export default function Home() {
               Nobody can spend your quota, and you can't spend anyone else's.</p>
           </div>
           <div className="card">
-            <h3>Secrets stay server-side</h3>
-            <p>The extension only ever knows your backend URL and one per-install token. Provider secrets
-              never leave your environment variables.</p>
+            <h3>Secrets stay scoped</h3>
+            <p>Google Places stays server-side. AI provider keys stay in local extension storage, not Sync,
+              and pass through your authenticated backend only when you test or parse.</p>
           </div>
           <div className="card">
             <h3>Nothing to shut down</h3>
@@ -136,9 +136,9 @@ export default function Home() {
             <p><Link className="btn small primary" to="/setup">Open the setup wizard</Link></p>
           </li>
           <li>
-            <h3>Install the extension</h3>
-            <p>Chrome and Firefox builds come from the same public source. Enter your backend URL and API key
-              on first run and hit <strong>Test connection</strong>.</p>
+            <h3>Create and install the extension</h3>
+            <p>The wizard builds it locally from the latest public source. Unzip it, load the folder in your
+              browser, and press <strong>Test extension connection</strong>.</p>
           </li>
           <li>
             <h3>Build the Shortcut</h3>

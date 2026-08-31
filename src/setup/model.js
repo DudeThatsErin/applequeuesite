@@ -21,8 +21,6 @@ export const INITIAL = {
   defList: 'Reminders',
   defCal: 'Calendar',
   inviteList: 'Inbox',
-  aiBase: 'https://api.openai.com/v1',
-  aiModel: 'gpt-4o-mini',
   backendUrl: '',
   apiKey: '',
 };
@@ -36,12 +34,14 @@ export function normalizeUrl(raw) {
   return u;
 }
 
+/* 16 random bytes, base64url, giving `aq_` plus 22 characters.
+   128 bits is not brute-forceable, and this has to be retyped into a Shortcut
+   by hand, so the old 32-byte hex key was 64 characters of no extra safety. */
 export function genKey() {
-  const bytes = new Uint8Array(32);
+  const bytes = new Uint8Array(16);
   crypto.getRandomValues(bytes);
-  let hex = '';
-  for (const b of bytes) hex += b.toString(16).padStart(2, '0');
-  return `aq_${hex}`;
+  const b64 = btoa(String.fromCharCode(...bytes));
+  return `aq_${b64.replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '')}`;
 }
 
 // ---------- persistence -----------------------------------------------------
@@ -58,6 +58,17 @@ export function load() {
   } catch {
     // Private mode, or a corrupted entry. Start clean rather than break.
     return { state: { ...INITIAL, apiKey: genKey() }, step: 1 };
+  }
+}
+
+// Read setup answers without inventing a new key. This is used by the
+// standalone Shortcuts guide, where a made-up key would be actively harmful.
+export function loadSavedSetup() {
+  try {
+    const saved = JSON.parse(localStorage.getItem(STORE_KEY) || 'null');
+    return saved ? { ...INITIAL, ...saved } : null;
+  } catch {
+    return null;
   }
 }
 
@@ -91,11 +102,6 @@ export function envPairs(s) {
   }
 
   pairs.push({ name: 'AI_ENABLED', value: String(s.ai) });
-  if (s.ai) {
-    pairs.push({ name: 'AI_BASE_URL', value: s.aiBase });
-    pairs.push({ name: 'AI_MODEL', value: s.aiModel });
-    pairs.push({ name: 'AI_API_KEY', value: '', supply: 'your AI provider key' });
-  }
 
   pairs.push({ name: 'PLACES_ENABLED', value: String(s.places) });
   if (s.places) {
@@ -146,7 +152,7 @@ export function summaryLines(s) {
     `Reminders:    ${on(s.reminders)}${s.reminders ? `   → ${s.defList}` : ''}`,
     `Calendar:     ${on(s.calendar)}${s.calendar ? `   → ${s.defCal}` : ''}`,
     '',
-    `AI parsing:   ${on(s.ai)}${s.ai ? `   ${s.aiModel} @ ${s.aiBase}` : ''}`,
+    `AI parsing:   ${on(s.ai)}${s.ai ? '   (provider configured in the extension)' : ''}`,
     `Places:       ${on(s.places)}`,
   ].join('\n');
 }
@@ -176,15 +182,6 @@ export function validate(step, s) {
     if (s.calendar && blank(s.inviteList)) {
       errors.inviteList = 'Enter the Reminders list that invitee nudges should go to.';
     }
-  }
-
-  if (step === 3 && s.ai) {
-    if (blank(s.aiBase)) {
-      errors.aiBase = 'Enter the base URL of your AI provider.';
-    } else if (!/^https?:\/\/\S+$/i.test(s.aiBase.trim())) {
-      errors.aiBase = 'Use a full URL starting with http:// or https://.';
-    }
-    if (blank(s.aiModel)) errors.aiModel = 'Enter the model id to send requests to.';
   }
 
   if (step === 4) {

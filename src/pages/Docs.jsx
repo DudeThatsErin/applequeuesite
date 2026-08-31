@@ -19,6 +19,7 @@ const REMINDER_SHAPE = `{
   "url":       "string",
   "dueDate":   "ISO 8601 | \\"\\"",
   "priority":  "none | low | medium | high",
+  "attachments": [ { "name": "string", "url": "string", "mimeType": "image/*" } ],
   "createdAt": "ISO 8601"
 }`;
 
@@ -65,8 +66,9 @@ npm start`;
 const groupRow = { color: 'var(--muted)', fontSize: 13, paddingTop: 16 };
 
 const API_ROWS = [
-  { group: null, method: 'GET', path: '/api/config', purpose: <>Which modules are enabled and their defaults. The extension self-configures from this.</> },
-  { group: null, method: 'GET', path: '/api/health', purpose: <>Liveness plus a token check. This is what <strong>Test connection</strong> calls.</> },
+  { group: null, method: 'GET', path: '/api/config', purpose: <>Enabled modules, defaults, and feature flags, with no provider secrets.</> },
+  { group: null, method: 'GET', path: '/api/health', purpose: <>Liveness, token, and storage check.</> },
+  { group: null, method: 'GET', path: '/api/extension', purpose: <>A private extension ZIP configured with this backend, key, modules, and defaults.</> },
   { group: 'Notes' },
   { method: 'POST', path: '/api/apple-notes', purpose: <>Queue a note. <code>title</code> required.</> },
   { method: 'GET', path: '/api/apple-notes', purpose: <>List queued notes (the extension's queue view).</> },
@@ -84,6 +86,7 @@ const API_ROWS = [
   { method: 'POST', path: '/api/calendar/ack', purpose: <>Acknowledge.</> },
   { group: 'Optional' },
   { method: 'POST', path: '/api/places/autocomplete', purpose: <><code>{'{"input": "…"}'}</code> → suggestions. <code>503</code> when Places is off.</> },
+  { method: 'POST', path: '/api/ai/test', purpose: <>Test the provider configuration entered in the extension. <code>503</code> when AI is off.</> },
   { method: 'POST', path: '/api/ai/parse', purpose: <>Free text → typed, titled, dated capture. <code>503</code> when AI is off.</> },
 ];
 
@@ -97,10 +100,6 @@ const ENV_ROWS = [
   ['DEFAULT_CALENDAR', <code>Calendar</code>, <>Calendar for events that don't name one.</>],
   ['CALENDAR_INVITE_REMINDER_LIST', <code>Inbox</code>, <>Where invitee nudge reminders go.</>],
   ['AI_ENABLED', <code>false</code>, <>Master switch for parsing. Off means the endpoints return <code>503</code>.</>],
-  ['AI_BASE_URL', 'none', <>Any OpenAI-compatible base, e.g. <code>https://api.openai.com/v1</code>.</>],
-  ['AI_MODEL', 'none', <>Model id. A small instruct model is plenty for this job.</>],
-  ['AI_API_KEY', 'none', <>Bearer token for the provider. Omit for a local endpoint that needs none.</>],
-  ['AI_TIMEOUT_MS', <code>60000</code>, <>Give up on the model after this long.</>],
   ['PLACES_ENABLED', <code>false</code>, <>Master switch for address autocomplete.</>],
   ['GOOGLE_PLACES_API_KEY', 'none', <>Server-side only. Never goes near the extension.</>],
   [['KV_REST_API_URL', 'KV_REST_API_TOKEN'], 'none', <>Queue storage. Set for you automatically if you attach a Vercel/Upstash Redis store.</>],
@@ -207,7 +206,7 @@ export default function Docs() {
         <h2>Environment variables</h2>
         <p className="lede">
           The whole configuration surface. Change any of these in your hosting project's
-          settings and redeploy, with no code edits and no reinstalling the extension.
+          settings and redeploy. If you change enabled modules, regenerate your custom extension so its tabs match.
         </p>
 
         <div className="table-wrap">
@@ -244,7 +243,8 @@ export default function Docs() {
           <div className="card">
             <h3>Attachments</h3>
             <p>Object storage: Vercel Blob by default, or any S3-compatible bucket (R2, S3, MinIO).
-              Uploads are capped at 20&nbsp;MB and limited to JPEG, PNG, GIF, WebP, HEIC, and PDF.</p>
+              Uploads are capped at 20&nbsp;MB. Notes accept any browser-provided file; Reminder attachments
+              are restricted to images.</p>
           </div>
         </div>
         <h3>Filenames</h3>
@@ -257,26 +257,26 @@ export default function Docs() {
       <section className="block" id="security">
         <h2>Security model</h2>
         <p className="lede">
-          Short version: the extension holds one token for one backend, and every provider
-          secret stays server-side.
+          Short version: the extension holds one token for one backend. Google Places stays server-side;
+          AI provider keys stay in local extension storage and are sent only through authenticated AI requests.
         </p>
         <div className="grid cols-2">
           <div className="card">
             <h3>What the extension knows</h3>
-            <p>Your backend URL and your Apple Queue token. Nothing else. There is no bundled key, no
-              shared credential, and no secret you'd have to rotate for anyone but yourself.</p>
+            <p>Your backend URL, Apple Queue token, defaults, and, when enabled, the provider/model/API key
+              you enter for AI. Provider keys use local extension storage rather than browser Sync.</p>
           </div>
           <div className="card">
             <h3>What stays on the server</h3>
-            <p>Your AI provider key and Google Places key, used only by your backend's own proxy routes.
-              A browser extension is public code, so anything shipped in it is published.</p>
+            <p>Your Google Places key and queued data. The backend receives an AI provider key only for the
+              provider call it is proxying and does not persist it.</p>
           </div>
         </div>
         <h3>What the backend enforces</h3>
         <ul>
           <li>authentication on every queue read, write, acknowledge, and delete;</li>
           <li>rate limits on the endpoints that proxy paid APIs;</li>
-          <li>upload size and MIME-type validation;</li>
+          <li>upload size validation and image-only Reminder attachment validation;</li>
           <li>filename sanitizing and path-traversal rejection;</li>
           <li>request-body validation on every route;</li>
           <li>unguessable attachment URLs, and no directory listing.</li>
@@ -311,8 +311,8 @@ export default function Docs() {
         <Copyable text={SELF_HOST} />
         <p>Then put it behind HTTPS with a real certificate. Browsers block extension requests to plain
           <code>http://</code>, and your Shortcut will be carrying your API key over the network.</p>
-        <p>Self-hosting also lets you keep the filesystem-backed storage instead of Redis and Blob, and to
-          point <code>AI_BASE_URL</code> at a local Ollama, neither of which a serverless deployment can do.</p>
+        <p>Self-hosting also lets you keep filesystem-backed storage instead of Redis and Blob, and use a
+          local Ollama URL in the extension. A serverless deployment cannot reach Ollama on your home network.</p>
       </section>
 
       <section className="block" id="troubleshooting">
@@ -357,8 +357,8 @@ export default function Docs() {
           </div>
           <div className="card">
             <h3>AI parsing returns 503 or 429</h3>
-            <p><code>503</code> means <code>AI_ENABLED</code> is off or the provider is unreachable.
-              <code>429</code> means a parse is already in flight, because requests are serialized on purpose.</p>
+            <p><code>503</code> means <code>AI_ENABLED</code> is off. A provider error names the selected
+              service; <code>429</code> means the deployment's per-minute AI proxy limit was reached.</p>
           </div>
         </div>
 

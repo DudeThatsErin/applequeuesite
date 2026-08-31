@@ -11,6 +11,7 @@ export default function TopBar() {
       <nav>
         <NavLink to="/" end>Overview</NavLink>
         <NavLink to="/setup">Set up</NavLink>
+        <NavLink to="/shortcuts">Shortcuts</NavLink>
         <NavLink to="/docs">Docs</NavLink>
         <a href={EXTENSION_REPO} target="_blank" rel="noopener">GitHub</a>
         <ThemeToggle />

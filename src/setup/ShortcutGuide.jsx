@@ -14,23 +14,26 @@ function action(kind, s) {
   if (kind === 'notes') {
     return (
       <>
-        Create Note, body from <code>body</code>, folder from <code>folder</code> (falls back to{' '}
-        <strong>{s.defNotes}</strong>).
+        Get <code>body</code>, run <strong>Make Rich Text from Markdown</strong>, then use{' '}
+        <strong>Create Note</strong> with folder from <code>folder</code> (falls back to{' '}
+        <strong>{s.defNotes}</strong>) and title from <code>title</code>.
       </>
     );
   }
   if (kind === 'reminders') {
     return (
       <>
-        Add New Reminder, title from <code>title</code>, notes from <code>notes</code>, due date from{' '}
-        <code>dueDate</code>, list from <code>list</code> (falls back to <strong>{s.defList}</strong>).
+        Use <strong>Add New Reminder</strong>: title from <code>title</code>, notes from <code>notes</code>,
+        due date from <code>dueDate</code>, URL from <code>url</code>, priority from <code>priority</code>, and
+        list from <code>list</code> (falls back to <strong>{s.defList}</strong>).
       </>
     );
   }
   return (
     <>
-      Add New Event, title from <code>title</code>, start from <code>startDate</code>, end from{' '}
-      <code>endDate</code>, calendar from <code>calendar</code> (falls back to <strong>{s.defCal}</strong>).
+      Use <strong>Add New Event</strong>: title from <code>title</code>, start from <code>startDate</code>, end
+      from <code>endDate</code>, location from <code>location</code>, URL from <code>url</code>, notes from{' '}
+      <code>notes</code>, and calendar from <code>calendar</code> (falls back to <strong>{s.defCal}</strong>).
     </>
   );
 }
@@ -47,11 +50,18 @@ function extra(kind, s) {
   }
   if (kind === 'reminders') {
     return (
-      <p>
-        <code>priority</code> is one of <code>none</code>, <code>low</code>, <code>medium</code>,{' '}
-        <code>high</code>. <code>url</code> is the page the capture came from, worth putting in the notes
-        field.
-      </p>
+      <>
+        <p>
+          <code>priority</code> is one of <code>none</code>, <code>low</code>, <code>medium</code>, or{' '}
+          <code>high</code>. If the Apple action expects a different priority label, add an <strong>If</strong>
+          block that maps these four values.
+        </p>
+        <p>
+          Reminder items may carry image <code>attachments</code>. Repeat over that list, use{' '}
+          <strong>Get Contents of URL</strong> for each <code>url</code>, and pass the downloaded images to
+          the Reminder action if your OS version exposes its image field.
+        </p>
+      </>
     );
   }
   return (
