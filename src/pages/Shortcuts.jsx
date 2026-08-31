@@ -6,9 +6,9 @@ import usePageMeta from '../usePageMeta.js';
 
 // Paste the published iCloud Shortcut URLs here when they are ready.
 const SHORTCUT_DOWNLOADS = {
-  notes: '',
-  reminders: '',
-  calendar: '',
+  notes: 'https://www.icloud.com/shortcuts/853ae25df1a14287b85998d4b035e2b9',
+  reminders: 'https://www.icloud.com/shortcuts/bfd7f01d4ec74c5f89f04bca9a148a94',
+  calendar: 'https://www.icloud.com/shortcuts/199f9ce0c2de4433b08f7f2e01aa9e20',
 };
 
 const MODULES = [
@@ -23,6 +23,7 @@ function DownloadLink({ kind, label, icon }) {
     <a
       className="btn small"
       href={href || undefined}
+      target={href ? '_blank' : undefined}
       aria-disabled={!href}
       onClick={!href ? (event) => event.preventDefault() : undefined}
       rel="noopener"
