@@ -39,9 +39,7 @@ export default function Shortcuts() {
 
   const saved = loadSavedSetup();
   const state = saved || { ...INITIAL, backendUrl: '', apiKey: '' };
-  // Journal is always documented because Apple Journal creation must be
-  // confirmed in its share sheet rather than enabled as a background module.
-  const enabled = MODULES.filter(([kind]) => kind === 'journal' || state[kind]);
+  const enabled = MODULES.filter(([kind]) => state[kind]);
   const shown = saved ? enabled : MODULES;
   const connection = `Backend:  ${state.backendUrl || PLACEHOLDER_BACKEND}\nAPI key:  ${state.apiKey || '<your Apple Queue API key>'}`;
 

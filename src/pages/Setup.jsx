@@ -127,6 +127,11 @@ export default function Setup() {
 
             <div className="grid" style={{ gap: 10 }}>
               <Check
+                checked={state.journal} onChange={(v) => set({ journal: v })}
+                title="📔 Apple Journal"
+                description="Journal entries with title, date, body, and any file attachments, shared to Journal as one complete entry."
+              />
+              <Check
                 checked={state.notes} onChange={(v) => set({ notes: v })}
                 title="📝 Apple Notes"
                 description="Markdown notes into a folder, with arbitrary file attachments."
@@ -477,7 +482,7 @@ export default function Setup() {
 
             <div className="note">
               <p>
-                The guide includes detailed Notes, Reminders, and Calendar actions, attachment handling,
+                The guide includes detailed Journal, Notes, Reminders, and Calendar actions, attachment handling,
                 acknowledgement, testing, automation, and published downloadable Shortcut templates.
               </p>
             </div>

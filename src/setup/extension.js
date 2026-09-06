@@ -27,7 +27,7 @@ function replaceDefault(source, key, value) {
 function customizeManifest(source, state) {
   const manifest = JSON.parse(source);
   const origin = new URL(normalizeUrl(state.backendUrl)).origin;
-  manifest.description = 'Queue Notes, Reminders, and Calendar events to your private Apple Queue backend';
+  manifest.description = 'Queue Journal, Notes, Reminders, and Calendar items to your private Apple Queue backend';
   manifest.host_permissions = [`${origin}/*`];
   return `${JSON.stringify(manifest, null, 2)}\n`;
 }
@@ -41,6 +41,7 @@ function customizeSettings(source, state) {
   out = out.replace(/(aiEnabled\s*:\s*)(?:true|false)/, `$1${Boolean(state.ai)}`);
 
   const endpoints = [
+    state.journal && "      ['Journal', '/api/apple-journal']",
     state.notes && "      ['Notes', '/api/apple-notes']",
     state.reminders && "      ['Reminders', '/api/reminders']",
     state.calendar && "      ['Calendar', '/api/calendar']",
@@ -57,14 +58,15 @@ function customizePopup(source, state) {
   out = replaceDefault(out, 'defaultCalendar', state.defCal);
   out = out.replace(/(aiEnabled\s*:\s*)(?:true|false)/, `$1${Boolean(state.ai)}`);
 
-  const firstType = state.notes ? 'note' : state.reminders ? 'reminder' : 'event';
-  out = out.replace("let currentType = 'note';", `let currentType = '${firstType}';`);
-  out = out.replace(/await setType\(\s*'note',\s*settings\s*\);/, `await setType(\n      '${firstType}',\n      settings\n    );`);
+  const firstType = state.journal ? 'journal' : state.notes ? 'note' : state.reminders ? 'reminder' : 'event';
+  out = out.replace("let currentType = 'journal';", `let currentType = '${firstType}';`);
+  out = out.replace(/await setType\(\s*'journal',\s*settings\s*\);/, `await setType(\n      '${firstType}',\n      settings\n    );`);
   return out;
 }
 
 function customizePopupHtml(source, state) {
   const disabled = [
+    !state.journal && 'journal',
     !state.notes && 'note',
     !state.reminders && 'reminder',
     !state.calendar && 'event',
@@ -110,7 +112,7 @@ export async function buildExtensionZip(state) {
   zip.file('APPLE-QUEUE-SETUP.txt', [
     'This custom Apple Queue extension was generated locally in your browser.',
     `Backend: ${normalizeUrl(state.backendUrl)}`,
-    `Modules: ${['Notes', 'Reminders', 'Calendar'].filter((_, i) => [state.notes, state.reminders, state.calendar][i]).join(', ')}`,
+    `Modules: ${['Journal', 'Notes', 'Reminders', 'Calendar'].filter((_, i) => [state.journal, state.notes, state.reminders, state.calendar][i]).join(', ')}`,
     `Natural-language parsing: ${state.ai ? 'enabled' : 'disabled'}`,
     '',
     'Keep this ZIP private: it contains your Apple Queue API key.',

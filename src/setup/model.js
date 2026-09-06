@@ -12,6 +12,7 @@ export const LAST_STEP = STEPS.length;
 export const PLACEHOLDER_BACKEND = 'https://YOUR-BACKEND.vercel.app';
 
 export const INITIAL = {
+  journal: true,
   notes: true,
   reminders: true,
   calendar: true,
@@ -89,6 +90,7 @@ export function save(state, step) {
 export function envPairs(s) {
   const pairs = [
     { name: 'APPLE_QUEUE_API_KEY', value: s.apiKey },
+    { name: 'ENABLE_JOURNAL', value: String(s.journal) },
     { name: 'ENABLE_NOTES', value: String(s.notes) },
     { name: 'ENABLE_REMINDERS', value: String(s.reminders) },
     { name: 'ENABLE_CALENDAR', value: String(s.calendar) },
@@ -148,6 +150,7 @@ export function summaryLines(s) {
     `Backend:      ${s.backendUrl || '(not recorded)'}`,
     `API key:      ${masked}`,
     '',
+    `Journal:      ${on(s.journal)}`,
     `Notes:        ${on(s.notes)}${s.notes ? `   → ${s.defNotes}` : ''}`,
     `Reminders:    ${on(s.reminders)}${s.reminders ? `   → ${s.defList}` : ''}`,
     `Calendar:     ${on(s.calendar)}${s.calendar ? `   → ${s.defCal}` : ''}`,
@@ -165,7 +168,7 @@ export function validate(step, s) {
   const errors = {};
   const blank = (v) => !String(v || '').trim();
 
-  if (step === 1 && !s.notes && !s.reminders && !s.calendar) {
+  if (step === 1 && !s.journal && !s.notes && !s.reminders && !s.calendar) {
     errors.modules = 'Pick at least one module. With everything off, the backend has nothing to queue.';
   }
 
