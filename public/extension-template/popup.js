@@ -7,7 +7,7 @@ let editorApi = null;
 
 let pendingFiles = [];
 const pendingAttachmentIds = new Map();
-let currentType = 'note';
+let currentType = 'journal';
 
 // Attachment blobs cannot be safely stored in chrome.storage.local as Files.
 // Keep the actual bytes in extension-owned IndexedDB and store only metadata/
@@ -83,30 +83,35 @@ async function clearPendingAttachmentBlobs() {
 }
 
 const SECONDARY_LABEL = {
+  journal: '',
   note: 'Folder',
   reminder: 'List',
   event: 'Calendar',
 };
 
 const SECONDARY_DEFAULT_KEY = {
+  journal: '',
   note: 'defaultFolder',
   reminder: 'defaultList',
   event: 'defaultCalendar',
 };
 
 const BODY_LABEL = {
+  journal: 'Body',
   note: 'Body',
   reminder: 'Notes',
   event: 'Notes',
 };
 
 const HEADER_TITLE = {
+  journal: '📔 Apple Journal',
   note: '🍎 Apple Notes',
   reminder: '✅ Reminders',
   event: '📅 Calendar',
 };
 
 const ENDPOINT = {
+  journal: '/api/apple-journal',
   note: '/api/apple-notes',
   reminder: '/api/reminders',
   event: '/api/calendar',
@@ -145,6 +150,11 @@ function ensureReminderDueDateDefault() {
 
   dateInput.value = localTodayDate();
   if (timeInput) timeInput.value = '';
+}
+
+function ensureJournalDefaults() {
+  const dateInput = document.getElementById('journal-date');
+  if (dateInput && !dateInput.value) dateInput.value = localTodayDate();
 }
 
 // Each visible white icon is a real button. Calling showPicker() from that
@@ -393,8 +403,12 @@ async function getSettings() {
           'http://localhost:11434',
       },
       (syncSettings) => {
-        chrome.storage.local.get({ aiApiKey: '' }, (localSettings) => {
-          resolve({ ...syncSettings, aiApiKey: localSettings.aiApiKey || '' });
+        chrome.storage.local.get({ aiApiKey: '', appleQueueApiKey: '' }, (localSettings) => {
+          resolve({
+            ...syncSettings,
+            apiKey: String(syncSettings.apiKey || localSettings.appleQueueApiKey || '').trim(),
+            aiApiKey: localSettings.aiApiKey || '',
+          });
         });
       }
     );
@@ -1065,6 +1079,10 @@ function setType(
     type !== 'event'
   );
 
+  document.getElementById('journal-fields').classList.toggle('hidden', type !== 'journal');
+  document.getElementById('secondary-row').classList.toggle('single-column', type === 'journal');
+  document.getElementById('secondary-field').classList.toggle('hidden', type === 'journal');
+
   const attachmentsSection = document.getElementById('attachments-section');
   const attachmentsLabel = document.getElementById('attachments-label');
   const fileInput = document.getElementById('file-input');
@@ -1077,11 +1095,13 @@ function setType(
     attachmentsLabel.innerHTML = 'Images <span style="color:#475569">(reminders only accept images)</span>';
     fileInput.accept = 'image/*';
     dropZone.textContent = 'Drop, paste, or click to attach images';
-  } else if (type === 'note') {
+  } else if (type === 'note' || type === 'journal') {
     attachmentsLabel.innerHTML = 'Attachments <span style="color:#475569">(any file)</span>';
     fileInput.removeAttribute('accept');
     dropZone.textContent = 'Drop, paste, or click to attach any file';
   }
+
+  if (type === 'journal') ensureJournalDefaults();
 
   renderChips();
 
@@ -1402,7 +1422,7 @@ document.addEventListener(
       });
 
     await setType(
-      'note',
+      'journal',
       settings
     );
 
@@ -1795,10 +1815,15 @@ document.addEventListener(
           try {
             let payload;
 
-            if (
-              currentType ===
-              'note'
-            ) {
+            if (currentType === 'journal') {
+              const attachments = await uploadPendingAttachments(settings, apiKey);
+              payload = {
+                title,
+                body,
+                date: document.getElementById('journal-date').value || localTodayDate(),
+                attachments,
+              };
+            } else if (currentType === 'note') {
               const attachments = await uploadPendingAttachments(settings, apiKey);
 
               payload = {
@@ -1944,6 +1969,8 @@ document.addEventListener(
             document.getElementById(
               'location'
             ).value = '';
+            document.getElementById('journal-date').value = localTodayDate();
+            if (currentType === 'journal') ensureJournalDefaults();
 
             document.getElementById('event-url').value = '';
             document.getElementById('invitees').value = '';

@@ -4,7 +4,6 @@ import ShortcutGuide from '../setup/ShortcutGuide.jsx';
 import { INITIAL, PLACEHOLDER_BACKEND, loadSavedSetup } from '../setup/model.js';
 import usePageMeta from '../usePageMeta.js';
 
-// Paste the published iCloud Shortcut URLs here when they are ready.
 const SHORTCUT_DOWNLOADS = {
   notes: 'https://www.icloud.com/shortcuts/853ae25df1a14287b85998d4b035e2b9',
   reminders: 'https://www.icloud.com/shortcuts/bfd7f01d4ec74c5f89f04bca9a148a94',
@@ -12,6 +11,7 @@ const SHORTCUT_DOWNLOADS = {
 };
 
 const MODULES = [
+  ['journal', 'Apple Journal', '📔'],
   ['notes', 'Apple Notes', '📝'],
   ['reminders', 'Reminders', '✅'],
   ['calendar', 'Calendar', '📅'],
@@ -22,13 +22,11 @@ function DownloadLink({ kind, label, icon }) {
   return (
     <a
       className="btn small"
-      href={href || undefined}
-      target={href ? '_blank' : undefined}
-      aria-disabled={!href}
-      onClick={!href ? (event) => event.preventDefault() : undefined}
+      href={href}
+      target="_blank"
       rel="noopener"
     >
-      {icon} Download {label} Shortcut {href ? '↗' : '(coming soon)'}
+      {icon} Download {label} Shortcut ↗
     </a>
   );
 }
@@ -41,7 +39,9 @@ export default function Shortcuts() {
 
   const saved = loadSavedSetup();
   const state = saved || { ...INITIAL, backendUrl: '', apiKey: '' };
-  const enabled = MODULES.filter(([kind]) => state[kind]);
+  // Journal is always documented because Apple Journal creation must be
+  // confirmed in its share sheet rather than enabled as a background module.
+  const enabled = MODULES.filter(([kind]) => kind === 'journal' || state[kind]);
   const shown = saved ? enabled : MODULES;
   const connection = `Backend:  ${state.backendUrl || PLACEHOLDER_BACKEND}\nAPI key:  ${state.apiKey || '<your Apple Queue API key>'}`;
 
@@ -79,9 +79,9 @@ export default function Shortcuts() {
 
       <section className="block">
         <h2>Downloadable templates</h2>
-        <p className="lede">These buttons are ready for the iCloud links when template Shortcuts are published.</p>
+        <p className="lede">Install the published templates from iCloud, then add your saved backend URL and API key.</p>
         <div className="row-actions" style={{ justifyContent: 'flex-start', flexWrap: 'wrap' }}>
-          {MODULES.map(([kind, label, icon]) => <DownloadLink key={kind} kind={kind} label={label} icon={icon} />)}
+          {MODULES.filter(([kind]) => SHORTCUT_DOWNLOADS[kind]).map(([kind, label, icon]) => <DownloadLink key={kind} kind={kind} label={label} icon={icon} />)}
         </div>
       </section>
 

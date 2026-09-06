@@ -114,7 +114,8 @@ document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('aiProvider').value = s.aiProvider || 'openai';
     document.getElementById('aiModel').value = s.aiModel || '';
     document.getElementById('aiBaseUrl').value = s.aiBaseUrl || 'http://localhost:11434';
-    chrome.storage.local.get({ aiApiKey: '' }, (local) => {
+    chrome.storage.local.get({ aiApiKey: '', appleQueueApiKey: '' }, (local) => {
+      document.getElementById('apiKey').value = String(s.apiKey || local.appleQueueApiKey || '').trim();
       document.getElementById('aiApiKey').value = local.aiApiKey || '';
     });
     updateAiVisibility();
@@ -154,7 +155,7 @@ document.addEventListener('DOMContentLoaded', () => {
         aiBaseUrl: ai.baseUrl,
       },
       () => {
-        chrome.storage.local.set({ aiApiKey: ai.apiKey }, () => {
+        chrome.storage.local.set({ aiApiKey: ai.apiKey, appleQueueApiKey: apiKey }, () => {
           const status = document.getElementById('status');
           status.textContent = '✓ Saved!';
           status.style.color = '#34d399';
@@ -195,7 +196,12 @@ document.addEventListener('DOMContentLoaded', () => {
       }
       const failed = results.filter((r) => !r.ok);
       if (!failed.length) {
-        setStatus('extension-test-status', '✓ Extension connection works — Notes, Reminders, and Calendar all authenticated.', 'ok');
+        await new Promise((resolve) => {
+          chrome.storage.sync.set({ serverUrl, apiKey }, () => {
+            chrome.storage.local.set({ appleQueueApiKey: apiKey }, resolve);
+          });
+        });
+        setStatus('extension-test-status', '✓ Extension connection works and has been saved.', 'ok');
       } else {
         setStatus(
           'extension-test-status',

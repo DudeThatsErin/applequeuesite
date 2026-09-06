@@ -41,7 +41,14 @@ async function getSettings() {
         defaultList: 'Inbox',
         defaultCalendar: 'Calendar',
       },
-      resolve
+      (syncSettings) => {
+        chrome.storage.local.get({ appleQueueApiKey: '' }, (localSettings) => {
+          resolve({
+            ...syncSettings,
+            apiKey: String(syncSettings.apiKey || localSettings.appleQueueApiKey || '').trim(),
+          });
+        });
+      }
     );
   });
 }

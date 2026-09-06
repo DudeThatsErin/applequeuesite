@@ -1,8 +1,8 @@
 {
   "manifest_version": 3,
   "name": "Apple Queue",
-  "version": "1.8.0",
-  "description": "Queue Notes, Reminders, and Calendar events to Apple via dashboard.erinskidds.com",
+  "version": "2.0.6",
+  "description": "Queue Journal, Notes, Reminders, and Calendar items to Apple via dashboard.erinskidds.com",
   "permissions": [
     "storage",
     "activeTab",
@@ -15,7 +15,7 @@
   ],
   "action": {
     "default_popup": "popup.html",
-    "default_title": "Add to Apple Notes / Reminders / Calendar",
+    "default_title": "Add to Apple Journal / Notes / Reminders / Calendar",
     "default_icon": {
       "16": "icons/icon16.png",
       "48": "icons/icon48.png",

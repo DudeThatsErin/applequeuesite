@@ -258,7 +258,7 @@ export default function Setup() {
             </p>
             <div className="field">
               <input type="text" id="apiKey" className="mono" value={state.apiKey} readOnly />
-              <div style={{ display: 'flex', gap: 8, marginTop: 8, alignItems: 'center' }}>
+              <div className="key-actions">
                 <button className="btn small" type="button" onClick={() => set({ apiKey: genKey() })}>
                   Generate a new one
                 </button>
@@ -280,24 +280,25 @@ export default function Setup() {
               Copy each value across. It does not split a pasted block, whatever it looks like it might do.
             </p>
 
-            <div className="table-wrap">
-              <table>
+            <div className="table-wrap environment-table-wrap">
+              <table className="environment-table">
                 <thead>
-                  <tr><th>Name</th><th>Value</th><th /></tr>
+                  <tr><th>Name</th><th>Value</th><th aria-label="Actions" /></tr>
                 </thead>
                 <tbody>
                   {pairs.map(({ name, value, supply }) => (
                     <tr key={name}>
-                      <td><code>{name}</code></td>
-                      <td>
+                      <td data-label="Name"><code>{name}</code></td>
+                      <td data-label="Value">
                         {supply
                           ? <em style={{ color: 'var(--warn)' }}>paste {supply}</em>
                           : <code>{value}</code>}
                       </td>
-                      <td style={{ textAlign: 'right' }}>
+                      <td className="environment-copy" style={{ textAlign: 'right' }}>
                         {!supply && (
                           <CopyButton
                             text={value}
+                            label="Copy value"
                             className="btn small copy-btn"
                             style={{ opacity: 1, position: 'static' }}
                           />
@@ -477,8 +478,7 @@ export default function Setup() {
             <div className="note">
               <p>
                 The guide includes detailed Notes, Reminders, and Calendar actions, attachment handling,
-                acknowledgement, testing, automation, and placeholder download buttons for future template
-                Shortcuts.
+                acknowledgement, testing, automation, and published downloadable Shortcut templates.
               </p>
             </div>
 

@@ -2,15 +2,19 @@ import Copyable from '../components/Copyable.jsx';
 import { PLACEHOLDER_BACKEND } from './model.js';
 
 const TITLES = {
+  journal: '📔 Shortcut: create Apple Journal entries',
   notes: '📝 Shortcut: file queued notes',
   reminders: '✅ Shortcut: file queued reminders',
   calendar: '📅 Shortcut: file queued events',
 };
 
-const PATHS = { notes: 'apple-notes', reminders: 'reminders', calendar: 'calendar' };
-const LIST_KEY = { notes: 'notes', reminders: 'reminders', calendar: 'events' };
+const PATHS = { journal: 'apple-journal', notes: 'apple-notes', reminders: 'reminders', calendar: 'calendar' };
+const LIST_KEY = { journal: 'entries', notes: 'notes', reminders: 'reminders', calendar: 'events' };
 
 function action(kind, s) {
+  if (kind === 'journal') {
+    return <>Get <code>title</code>, <code>date</code>, <code>body</code>, and <code>attachments</code>. Build one rich-text entry from the title/date/body, then download every attachment and add it to the same share payload. Use <strong>Share</strong>, select <strong>Journal</strong>, and save the one complete entry.</>;
+  }
   if (kind === 'notes') {
     return (
       <>
@@ -39,6 +43,9 @@ function action(kind, s) {
 }
 
 function extra(kind, s) {
+  if (kind === 'journal') {
+    return <p><strong>Important:</strong> Journal has no direct automation API. Acknowledge the queue item only after you tap Done in Journal; cancelling the share sheet must leave it queued.</p>;
+  }
   if (kind === 'notes') {
     return (
       <p>
