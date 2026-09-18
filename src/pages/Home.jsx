@@ -1,4 +1,5 @@
 import { Link } from 'react-router-dom';
+import { CLI_DOTNET_VERSION, CLI_INSTALL_DOTNET } from '../config.js';
 import usePageMeta from '../usePageMeta.js';
 
 const FLOW = `Browser extension          Your backend                 Your iPhone / Mac
@@ -6,6 +7,10 @@ const FLOW = `Browser extension          Your backend                 Your iPhon
 Capture a note      ──▶    Queued (pending)      ──▶    Shortcut fetches pending
                                                         Creates the real Apple item
                            Removed from queue    ◀──    Shortcut acknowledges it`;
+
+const CLI_TASTE = `applequeue journal add "Today" --body "Long walk, good coffee."
+applequeue reminder add "Pick up milk" --list Errands --due "tomorrow 9am"
+git log --oneline -20 | applequeue note add "Release notes" --stdin`;
 
 export default function Home() {
   usePageMeta(
@@ -93,6 +98,23 @@ export default function Home() {
             </p>
           </div>
         </div>
+      </section>
+
+      <section className="block" id="terminal">
+        <h2>Prefer the terminal?</h2>
+        <p className="lede">
+          The <code>applequeue</code> command talks to the same backend with the same API key, so you can
+          capture without a browser at all — from a script, an SSH session, or a shell you already have open.
+        </p>
+        <pre><code>{CLI_TASTE}</code></pre>
+        <div className="card">
+          <h3>📦 macOS, Linux, Windows</h3>
+          <p>One .NET tool, no administrator rights, nothing on top of the {CLI_DOTNET_VERSION} SDK.</p>
+          <p><code>{CLI_INSTALL_DOTNET}</code></p>
+        </div>
+        <p style={{ marginTop: 16 }}>
+          <Link className="btn small" to="/terminal">Read the terminal guide →</Link>
+        </p>
       </section>
 
       <section className="block">

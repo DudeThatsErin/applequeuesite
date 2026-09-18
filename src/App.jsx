@@ -6,6 +6,7 @@ import Home from './pages/Home.jsx';
 import Docs from './pages/Docs.jsx';
 import Setup from './pages/Setup.jsx';
 import Shortcuts from './pages/Shortcuts.jsx';
+import Terminal from './pages/Terminal.jsx';
 import NotFound from './pages/NotFound.jsx';
 
 /* Client-side routing loses the browser's own anchor handling, so /docs/#api
@@ -35,6 +36,7 @@ export default function App() {
         {/* React Router matches these with or without the trailing slash. */}
         <Route path="/setup" element={<Setup />} />
         <Route path="/shortcuts" element={<Shortcuts />} />
+        <Route path="/terminal" element={<Terminal />} />
         <Route path="/docs" element={<Docs />} />
         <Route path="*" element={<NotFound />} />
       </Routes>

@@ -1,5 +1,6 @@
+import { Link } from 'react-router-dom';
 import Copyable from '../components/Copyable.jsx';
-import { EXTENSION_REPO, TEMPLATE_REPO } from '../config.js';
+import { CLI_INSTALL_DOTNET, CLI_REPO, EXTENSION_REPO, TEMPLATE_REPO } from '../config.js';
 import usePageMeta from '../usePageMeta.js';
 
 const NOTE_SHAPE = `{
@@ -62,6 +63,12 @@ cp .env.example .env      # fill in the values from the setup wizard
 npm install
 npm run build
 npm start`;
+
+const CLI_SESSION = `${CLI_INSTALL_DOTNET}    # macOS, Linux, Windows; needs the .NET 8 SDK
+
+applequeue configure
+applequeue doctor
+applequeue reminder add "Renew passport" --list Inbox --priority high --json`;
 
 const groupRow = { color: 'var(--muted)', fontSize: 13, paddingTop: 16 };
 
@@ -130,6 +137,7 @@ export default function Docs() {
         <a href="#environment">Environment</a>
         <a href="#storage">Storage</a>
         <a href="#security">Security</a>
+        <a href="#cli">Terminal CLI</a>
         <a href="#self-hosting">Self-hosting</a>
         <a href="#troubleshooting">Troubleshooting</a>
       </div>
@@ -228,6 +236,23 @@ export default function Docs() {
           </table>
         </div>
         <p>Boolean variables read as true unless the value is literally <code>false</code>.</p>
+      </section>
+
+      <section className="block" id="cli">
+        <h2>Terminal CLI</h2>
+        <p className="lede">
+          <code>applequeue</code> is a first-party client for this same API: it reads{' '}
+          <code>GET /api/config</code> for modules and defaults, then POSTs to the queue endpoints with
+          your <code>x-api-key</code>. It adds no server and stores nothing beyond your backend URL and
+          key. The <Link to="/terminal">terminal guide</Link> covers every command.
+        </p>
+        <Copyable text={CLI_SESSION} />
+        <p>
+          Useful when writing scripts against it: <code>--json</code> emits the backend's raw response on
+          stdout alone, and exit codes are stable — <code>2</code> unauthorized, <code>3</code> module
+          disabled, <code>4</code> network failure, <code>6</code> not configured. Source and releases are
+          on <a href={CLI_REPO} target="_blank" rel="noopener">GitHub ↗</a>.
+        </p>
       </section>
 
       <section className="block" id="storage">

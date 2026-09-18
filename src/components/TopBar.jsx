@@ -11,6 +11,7 @@ function NavigationLinks({ onNavigate }) {
       <NavLink to="/" end onClick={onNavigate}>Overview</NavLink>
       <NavLink to="/setup" onClick={onNavigate}>Set up</NavLink>
       <NavLink to="/shortcuts" onClick={onNavigate}>Shortcuts</NavLink>
+      <NavLink to="/terminal" onClick={onNavigate}>Terminal</NavLink>
       <NavLink to="/docs" onClick={onNavigate}>Docs</NavLink>
       <a href={SUPPORT_URL} target="_blank" rel="noopener" onClick={onNavigate}>GitHub support</a>
       <a href={SUPPORT_EMAIL} onClick={onNavigate}>Email support</a>

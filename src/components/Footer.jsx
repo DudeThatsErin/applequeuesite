@@ -10,6 +10,7 @@ export default function Footer() {
           <Link to="/">Overview</Link>
           <Link to="/setup">Set up</Link>
           <Link to="/shortcuts">Shortcuts</Link>
+          <Link to="/terminal">Terminal</Link>
           <Link to="/docs">Docs</Link>
           <a href={SUPPORT_URL} target="_blank" rel="noopener">GitHub support</a>
           <a href={SUPPORT_EMAIL}>Email support</a>
