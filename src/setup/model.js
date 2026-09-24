@@ -16,6 +16,7 @@ export const INITIAL = {
   notes: true,
   reminders: true,
   calendar: true,
+  freeform: false,
   ai: false,
   places: false,
   defNotes: 'Notes',
@@ -94,6 +95,7 @@ export function envPairs(s) {
     { name: 'ENABLE_NOTES', value: String(s.notes) },
     { name: 'ENABLE_REMINDERS', value: String(s.reminders) },
     { name: 'ENABLE_CALENDAR', value: String(s.calendar) },
+    { name: 'ENABLE_FREEFORM', value: String(s.freeform) },
   ];
 
   if (s.notes) pairs.push({ name: 'DEFAULT_NOTES_FOLDER', value: s.defNotes });
@@ -168,7 +170,7 @@ export function validate(step, s) {
   const errors = {};
   const blank = (v) => !String(v || '').trim();
 
-  if (step === 1 && !s.journal && !s.notes && !s.reminders && !s.calendar) {
+  if (step === 1 && !s.journal && !s.notes && !s.reminders && !s.calendar && !s.freeform) {
     errors.modules = 'Pick at least one module. With everything off, the backend has nothing to queue.';
   }
 

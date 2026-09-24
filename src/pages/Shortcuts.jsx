@@ -15,6 +15,7 @@ const MODULES = [
   ['notes', 'Apple Notes', '📝'],
   ['reminders', 'Reminders', '✅'],
   ['calendar', 'Calendar', '📅'],
+  ['freeform', 'Freeform', '🖼️'],
 ];
 
 function DownloadLink({ kind, label, icon }) {

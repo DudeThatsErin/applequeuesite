@@ -45,6 +45,7 @@ function customizeSettings(source, state) {
     state.notes && "      ['Notes', '/api/apple-notes']",
     state.reminders && "      ['Reminders', '/api/reminders']",
     state.calendar && "      ['Calendar', '/api/calendar']",
+    state.freeform && "      ['Freeform', '/api/freeform']",
   ].filter(Boolean).join(',\n');
   out = out.replace(/    const endpoints = \[[\s\S]*?\n    \];/, `    const endpoints = [\n${endpoints}\n    ];`);
   return out;
@@ -58,7 +59,7 @@ function customizePopup(source, state) {
   out = replaceDefault(out, 'defaultCalendar', state.defCal);
   out = out.replace(/(aiEnabled\s*:\s*)(?:true|false)/, `$1${Boolean(state.ai)}`);
 
-  const firstType = state.journal ? 'journal' : state.notes ? 'note' : state.reminders ? 'reminder' : 'event';
+  const firstType = state.journal ? 'journal' : state.notes ? 'note' : state.reminders ? 'reminder' : state.calendar ? 'event' : 'freeform';
   out = out.replace("let currentType = 'journal';", `let currentType = '${firstType}';`);
   out = out.replace(/await setType\(\s*'journal',\s*settings\s*\);/, `await setType(\n      '${firstType}',\n      settings\n    );`);
   return out;
@@ -70,6 +71,7 @@ function customizePopupHtml(source, state) {
     !state.notes && 'note',
     !state.reminders && 'reminder',
     !state.calendar && 'event',
+    !state.freeform && 'freeform',
   ].filter(Boolean);
   if (!disabled.length) return source;
   const css = disabled.map((type) => `.type-tab[data-type="${type}"] { display: none; }`).join('\n  ');
@@ -112,7 +114,7 @@ export async function buildExtensionZip(state) {
   zip.file('APPLE-QUEUE-SETUP.txt', [
     'This custom Apple Queue extension was generated locally in your browser.',
     `Backend: ${normalizeUrl(state.backendUrl)}`,
-    `Modules: ${['Journal', 'Notes', 'Reminders', 'Calendar'].filter((_, i) => [state.journal, state.notes, state.reminders, state.calendar][i]).join(', ')}`,
+    `Modules: ${['Journal', 'Notes', 'Reminders', 'Calendar', 'Freeform'].filter((_, i) => [state.journal, state.notes, state.reminders, state.calendar, state.freeform][i]).join(', ')}`,
     `Natural-language parsing: ${state.ai ? 'enabled' : 'disabled'}`,
     '',
     'Keep this ZIP private: it contains your Apple Queue API key.',

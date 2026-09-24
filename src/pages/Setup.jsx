@@ -146,6 +146,11 @@ export default function Setup() {
                 title="📅 Calendar"
                 description="Events with start and end, location, invitees, and alerts."
               />
+              <Check
+                checked={state.freeform} onChange={(v) => set({ freeform: v })}
+                title="🖼️ Freeform"
+                description="Markdown text and file attachments sent to a named Freeform board."
+              />
             </div>
 
             {errors.modules && (

@@ -6,10 +6,13 @@ const TITLES = {
   notes: '📝 Shortcut: file queued notes',
   reminders: '✅ Shortcut: file queued reminders',
   calendar: '📅 Shortcut: file queued events',
+  freeform: '🖼️ Shortcut: add files to a Freeform board',
 };
 
 const PATHS = { journal: 'apple-journal', notes: 'apple-notes', reminders: 'reminders', calendar: 'calendar' };
 const LIST_KEY = { journal: 'entries', notes: 'notes', reminders: 'reminders', calendar: 'events' };
+PATHS.freeform = 'freeform';
+LIST_KEY.freeform = 'items';
 
 function action(kind, s) {
   if (kind === 'journal') {
@@ -32,6 +35,9 @@ function action(kind, s) {
         list from <code>list</code> (falls back to <strong>{s.defList}</strong>).
       </>
     );
+  }
+  if (kind === 'freeform') {
+    return <>Get <code>board</code> and <code>attachments</code>. Repeat the attachments, use <strong>Get Contents of URL</strong> for each <code>url</code>, then use Freeform’s <strong>Add Files to Board</strong> action with the downloaded files and that exact board name.</>;
   }
   return (
     <>
@@ -71,6 +77,9 @@ function extra(kind, s) {
       </>
     );
   }
+  if (kind === 'freeform') {
+    return <p>The first attachment is the text saved as a Markdown file named from the item title. Acknowledge only after <strong>Add Files to Board</strong> succeeds so failed items remain queued.</p>;
+  }
   return (
     <p>
       <code>allDay</code> is a boolean, <code>alerts</code> is a list of minutes-before, and{' '}
@@ -84,8 +93,11 @@ export default function ShortcutGuide({ kind, state: s }) {
   const base = s.backendUrl || PLACEHOLDER_BACKEND;
   const key = s.apiKey || '<your API key>';
 
-  const fetchBlock = `${base}/api/${PATHS[kind]}/pending\n\nHeader:  x-api-key\nValue:   ${key}`;
-  const ackBlock = `${base}/api/${PATHS[kind]}/ack\n\nHeader:  x-api-key\nValue:   ${key}\n\nBody:    { "ids": [ collected ids ] }`;
+  const fetchPath = kind === 'freeform' ? 'freeform' : `${PATHS[kind]}/pending`;
+  const ackPath = kind === 'freeform' ? 'freeform' : `${PATHS[kind]}/ack`;
+  const ackMethod = kind === 'freeform' ? 'DELETE' : 'POST';
+  const fetchBlock = `${base}/api/${fetchPath}\n\nHeader:  x-api-key\nValue:   ${key}`;
+  const ackBlock = `${base}/api/${ackPath}\n\nHeader:  x-api-key\nValue:   ${key}\n\nBody:    { "ids": [ collected ids ] }`;
 
   return (
     <>
@@ -109,7 +121,7 @@ export default function ShortcutGuide({ kind, state: s }) {
         <li>
           <h3>Get Contents of URL: acknowledge</h3>
           <p>
-            Method <strong>POST</strong>, request body <strong>JSON</strong>, with the collected ids.
+            Method <strong>{ackMethod}</strong>, request body <strong>JSON</strong>, with the collected ids.
             Without this step every item gets created again on the next run.
           </p>
           <Copyable text={ackBlock} />
